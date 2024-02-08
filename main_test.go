@@ -24,10 +24,7 @@ func TestShouldPrintIllegalOption(t *testing.T) {
 	expected := "ccwc: illegal option -- -d\nusage: ccwc [-Lclmw] [file ...]\n"
 	actual := captureStdout(main)
 
-	if expected != actual {
-		t.Errorf("Expected: %q", expected)
-		t.Errorf("Actual:   %q", actual)
-	}
+	assert(expected, actual, t)
 }
 
 func TestShouldPrintNoFile(t *testing.T) {
@@ -36,10 +33,7 @@ func TestShouldPrintNoFile(t *testing.T) {
 	expected := "wc: non-existing.txt: open: No such file or directory\n"
 	actual := captureStdout(main)
 
-	if expected != actual {
-		t.Errorf("Expected: %q", expected)
-		t.Errorf("Actual:   %q", actual)
-	}
+	assert(expected, actual, t)
 }
 
 func TestShouldPrintNumberOfBytesOfFile(t *testing.T) {
@@ -48,6 +42,19 @@ func TestShouldPrintNumberOfBytesOfFile(t *testing.T) {
 	expected := "43 test.txt\n"
 	actual := captureStdout(main)
 
+	assert(expected, actual, t)
+}
+
+func TestShouldPrintNumberOfLinesOfFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-l", "test.txt"}
+
+	expected := "2 test.txt\n"
+	actual := captureStdout(main)
+
+	assert(expected, actual, t)
+}
+
+func assert(expected string, actual string, t *testing.T) {
 	if expected != actual {
 		t.Errorf("Expected: %q", expected)
 		t.Errorf("Actual:   %q", actual)
