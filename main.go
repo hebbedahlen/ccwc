@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -25,10 +26,33 @@ func main() {
 		printFileSize(fileName)
 	case "-l":
 		printNumberOfLines(fileName)
+	case "-w":
+		printNumberOfWords(fileName)
 	default:
 		fmt.Printf("ccwc: illegal option -- %s\n", option)
 		fmt.Println("usage: ccwc [-Lclmw] [file ...]")
 	}
+}
+
+func printNumberOfWords(fileName string) {
+	scanner, file := readFile(fileName)
+
+	defer file.Close()
+
+	wordCount := 0
+
+	for scanner.Scan() {
+		words := strings.Split(scanner.Text(), " ")
+
+		wordCount += len(words)
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	fmt.Println(wordCount, fileName)
 }
 
 func printNumberOfLines(fileName string) {

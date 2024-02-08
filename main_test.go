@@ -36,7 +36,7 @@ func TestShouldPrintNoFile(t *testing.T) {
 	assert(expected, actual, t)
 }
 
-func TestShouldPrintNumberOfBytesOfFile(t *testing.T) {
+func TestShouldPrintNumberOfBytesInFile(t *testing.T) {
 	os.Args = []string{"ccwc", "-c", "test.txt"}
 
 	expected := "43 test.txt\n"
@@ -45,10 +45,19 @@ func TestShouldPrintNumberOfBytesOfFile(t *testing.T) {
 	assert(expected, actual, t)
 }
 
-func TestShouldPrintNumberOfLinesOfFile(t *testing.T) {
+func TestShouldPrintNumberOfLinesInFile(t *testing.T) {
 	os.Args = []string{"ccwc", "-l", "test.txt"}
 
 	expected := "2 test.txt\n"
+	actual := captureStdout(main)
+
+	assert(expected, actual, t)
+}
+
+func TestShouldPrintNumberOfWordsInFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-w", "test.txt"}
+
+	expected := "9 test.txt\n"
 	actual := captureStdout(main)
 
 	assert(expected, actual, t)
