@@ -9,18 +9,43 @@ import (
 func TestShouldPrintUsageToStdout(t *testing.T) {
 	os.Args = []string{"ccwc"}
 
-	want := "usage: ccwc [-Lclmw] [file ...]\n"
-	got := captureStdout(main)
+	expected := "usage: ccwc [-Lclmw] [file ...]\n"
+	actual := captureStdout(main)
 
-	if want != got {
-		t.Errorf("Expected output %q, but got %q", want, got)
+	if expected != actual {
+		t.Errorf("Expected: %q", expected)
+		t.Errorf("Actual:   %q", actual)
 	}
 }
 
 func TestShouldPrintIllegalOption(t *testing.T) {
-	os.Args = []string{"ccwc", "-d"}
+	os.Args = []string{"ccwc", "-d", "test.txt"}
 
 	expected := "ccwc: illegal option -- -d\nusage: ccwc [-Lclmw] [file ...]\n"
+	actual := captureStdout(main)
+
+	if expected != actual {
+		t.Errorf("Expected: %q", expected)
+		t.Errorf("Actual:   %q", actual)
+	}
+}
+
+func TestShouldPrintNoFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-c", "non-existing.txt"}
+
+	expected := "wc: non-existing.txt: open: No such file or directory\n"
+	actual := captureStdout(main)
+
+	if expected != actual {
+		t.Errorf("Expected: %q", expected)
+		t.Errorf("Actual:   %q", actual)
+	}
+}
+
+func TestShouldPrintNumberOfBytesOfFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-c", "test.txt"}
+
+	expected := "43 test.txt\n"
 	actual := captureStdout(main)
 
 	if expected != actual {
