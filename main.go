@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"strings"
 )
@@ -28,10 +30,28 @@ func main() {
 		printNumberOfLines(fileName)
 	case "-w":
 		printNumberOfWords(fileName)
+	case "-m":
+		printNumberOfCharacters(fileName)
 	default:
 		fmt.Printf("ccwc: illegal option -- %s\n", option)
 		fmt.Println("usage: ccwc [-Lclmw] [file ...]")
 	}
+}
+
+func printNumberOfCharacters(fileName string) {
+	_, file := readFile(fileName)
+
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	numOfChars := len(content)
+
+	fmt.Println(numOfChars, fileName)
 }
 
 func printNumberOfWords(fileName string) {

@@ -12,10 +12,7 @@ func TestShouldPrintUsageToStdout(t *testing.T) {
 	expected := "usage: ccwc [-Lclmw] [file ...]\n"
 	actual := captureStdout(main)
 
-	if expected != actual {
-		t.Errorf("Expected: %q", expected)
-		t.Errorf("Actual:   %q", actual)
-	}
+	assert(expected, actual, t)
 }
 
 func TestShouldPrintIllegalOption(t *testing.T) {
@@ -39,7 +36,7 @@ func TestShouldPrintNoFile(t *testing.T) {
 func TestShouldPrintNumberOfBytesInFile(t *testing.T) {
 	os.Args = []string{"ccwc", "-c", "test.txt"}
 
-	expected := "43 test.txt\n"
+	expected := "42 test.txt\n"
 	actual := captureStdout(main)
 
 	assert(expected, actual, t)
@@ -58,6 +55,15 @@ func TestShouldPrintNumberOfWordsInFile(t *testing.T) {
 	os.Args = []string{"ccwc", "-w", "test.txt"}
 
 	expected := "9 test.txt\n"
+	actual := captureStdout(main)
+
+	assert(expected, actual, t)
+}
+
+func TestShouldPrintNumberOfCharactersInFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-m", "test.txt"}
+
+	expected := "42 test.txt\n"
 	actual := captureStdout(main)
 
 	assert(expected, actual, t)
