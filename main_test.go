@@ -69,6 +69,15 @@ func TestShouldPrintNumberOfCharactersInFile(t *testing.T) {
 	assert(expected, actual, t)
 }
 
+func TestShouldPrintLongestCharacterLineInFile(t *testing.T) {
+	os.Args = []string{"ccwc", "-L", "test.txt"}
+
+	expected := "24 test.txt\n"
+	actual := captureStdout(main)
+
+	assert(expected, actual, t)
+}
+
 func assert(expected string, actual string, t *testing.T) {
 	if expected != actual {
 		t.Errorf("Expected: %q", expected)

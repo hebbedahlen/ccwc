@@ -32,10 +32,32 @@ func main() {
 		printNumberOfWords(fileName)
 	case "-m":
 		printNumberOfCharacters(fileName)
+	case "-L":
+		printNumberOfCharactersOfLongestLine(fileName)
 	default:
 		fmt.Printf("ccwc: illegal option -- %s\n", option)
 		fmt.Println("usage: ccwc [-Lclmw] [file ...]")
 	}
+}
+
+func printNumberOfCharactersOfLongestLine(fileName string) {
+	scanner, file := readFile(fileName)
+
+	defer file.Close()
+
+	highest := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		lineLength := len(line)
+
+		if lineLength > highest {
+			highest = lineLength
+		}
+	}
+
+	fmt.Println(highest, fileName)
 }
 
 func printNumberOfCharacters(fileName string) {
