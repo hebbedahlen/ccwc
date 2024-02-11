@@ -1,152 +1,86 @@
 package main
 
 import (
-	"bufio"
+	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("usage: ccwc [-Lclmw] [file ...]")
-		return
-	}
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-	option := os.Args[1]
-	fileName := os.Args[2]
+	byteFlag := flag.Bool("c", false, "The number of bytes in each input file is written to the standard output.")
+	lineFlag := flag.Bool("l", false, "The number of lines in each input file is written to the standard output.")
+	charFLag := flag.Bool("m", false, "The number of characters in each input file is written to the standard output.")
+	wordFLag := flag.Bool("w", false, "The number of words in each input file is written to the standard output.")
 
-	if !fileExists(fileName) {
-		fmt.Println(fmt.Errorf("wc: %s: open: No such file or directory", fileName).Error())
-		return
-	}
+	flag.Parse()
 
-	switch option {
-	case "-c":
-		printFileSize(fileName)
-	case "-l":
-		printNumberOfLines(fileName)
-	case "-w":
-		printNumberOfWords(fileName)
-	case "-m":
-		printNumberOfCharacters(fileName)
-	case "-L":
-		printNumberOfCharactersOfLongestLine(fileName)
+	args := flag.Args()
+
+	content, fileName := getContent(args)
+
+	switch {
+	case *byteFlag:
+		fmt.Println(len(content), fileName)
+
+	case *lineFlag:
+		lines := getNumLines(content)
+
+		fmt.Println(lines, fileName)
+
+	case *charFLag:
+		fmt.Println(len(bytes.Runes(content)), fileName)
+
+	case *wordFLag:
+		fmt.Println(len(bytes.Fields(content)), fileName)
+
 	default:
-		fmt.Printf("ccwc: illegal option -- %s\n", option)
-		fmt.Println("usage: ccwc [-Lclmw] [file ...]")
+		fmt.Println(len(content), getNumLines(content), len(bytes.Fields(content)), fileName)
 	}
 }
 
-func printNumberOfCharactersOfLongestLine(fileName string) {
-	scanner, file := readFile(fileName)
+func getContent(args []string) ([]byte, string) {
+	if len(args) > 0 {
+		fileName := args[0]
 
-	defer file.Close()
+		return readFile(fileName), fileName
+	}
 
-	highest := 0
+	return readStdin(), ""
+}
 
-	for scanner.Scan() {
-		line := scanner.Text()
+func getNumLines(content []byte) int {
+	count := 0
 
-		lineLength := len(line)
-
-		if lineLength > highest {
-			highest = lineLength
+	for _, b := range content {
+		if b == '\n' {
+			count++
 		}
 	}
 
-	fmt.Println(highest, fileName)
+	return count
 }
 
-func printNumberOfCharacters(fileName string) {
-	_, file := readFile(fileName)
-
-	defer file.Close()
-
-	content, err := io.ReadAll(file)
+func readStdin() []byte {
+	content, err := io.ReadAll(os.Stdin)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error reading from stdin: ", err)
 	}
 
-	numOfChars := len(content)
-
-	fmt.Println(numOfChars, fileName)
+	return content
 }
 
-func printNumberOfWords(fileName string) {
-	scanner, file := readFile(fileName)
-
-	defer file.Close()
-
-	wordCount := 0
-
-	for scanner.Scan() {
-		words := strings.Split(scanner.Text(), " ")
-
-		wordCount += len(words)
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-
-	fmt.Println(wordCount, fileName)
-}
-
-func printNumberOfLines(fileName string) {
-	scanner, file := readFile(fileName)
-
-	defer file.Close()
-
-	lineCount := 0
-
-	for scanner.Scan() {
-		lineCount++
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-
-	fmt.Println(lineCount, fileName)
-}
-
-func printFileSize(fileName string) {
-	fileInfo, err := os.Stat(fileName)
+func readFile(fileName string) []byte {
+	content, err := os.ReadFile(fileName)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal("Error reading file: ", err)
 	}
 
-	fmt.Println(fileInfo.Size(), fileName)
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	if err != nil && !os.IsNotExist(err) {
-		panic(err)
-	}
-
-	return !info.IsDir()
-}
-
-func readFile(fileName string) (*bufio.Scanner, *os.File) {
-	file, err := os.Open(fileName)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return bufio.NewScanner(file), file
+	return content
 }
